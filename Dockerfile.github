@@ -1,0 +1,19 @@
+FROM ubuntu:22.04
+
+# Install base dependencies
+RUN apt-get update && apt-get install -y curl sudo apt-transport-https lsb-release gnupg jq
+
+# Install Azure CLI
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+
+# Install GitHub Actions runner
+WORKDIR /actions-runner
+RUN curl -O -L https://github.com/actions/runner/releases/download/v2.321.0/actions-runner-linux-x64-2.321.0.tar.gz && \
+    tar xzf ./actions-runner-linux-x64-2.321.0.tar.gz
+
+# Copy entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Default entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
