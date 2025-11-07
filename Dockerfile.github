@@ -12,8 +12,8 @@ RUN curl -O -L https://github.com/actions/runner/releases/download/v2.321.0/acti
     tar xzf ./actions-runner-linux-x64-2.321.0.tar.gz
 
 # Copy entrypoint script
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY github-actions-runner/entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
 
 # Default entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
