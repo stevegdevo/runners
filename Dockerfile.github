@@ -19,7 +19,7 @@ RUN apt-get update && \
         unzip \
         ca-certificates \
         gnupg \
-        lsb-release \
+        lsb-release && \
     rm -rf /var/lib/apt/lists/*
 
 
