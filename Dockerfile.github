@@ -12,7 +12,17 @@ RUN apt-get update && \
         ca-certificates \
         gnupg \
         lsb-release && \
+        software-properties-common && \
     rm -rf /var/lib/apt/lists/*
+
+
+# ------------------------------------------------------------------------------
+# Install Node.js (needed for setup-terraform and other JS-based actions)
+# ------------------------------------------------------------------------------
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
+    apt-get install -y nodejs && \
+    node --version && npm --version
+
 
 # ------------------------------------------------------------------------------
 # Install Azure CLI
