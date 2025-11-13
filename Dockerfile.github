@@ -1,22 +1,60 @@
 FROM ghcr.io/actions/actions-runner:2.304.0
-# for latest release, see https://github.com/actions/runner/releases
+# For latest release tags, see: https://github.com/actions/runner/releases
 
 USER root
 
-# Install dependencies (curl, jq, yq)
+# Install base dependencies
 RUN apt-get update && \
-    apt-get install -y curl jq && \
-    curl -sSL -o /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && \
-    chmod +x /usr/local/bin/yq && \
-    apt-get clean && \
+    apt-get install -y \
+        curl \
+        jq \
+        unzip \
+        ca-certificates \
+        gnupg \
+        lsb-release && \
     rm -rf /var/lib/apt/lists/*
 
+# ------------------------------------------------------------------------------
 # Install Azure CLI
+# ------------------------------------------------------------------------------
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
+# Install Bicep CLI via Azure CLI
+RUN az bicep install && \
+    az bicep version
+
+# ------------------------------------------------------------------------------
+# Install Terraform (latest stable)
+# ------------------------------------------------------------------------------
+ARG TF_VERSION=1.9.8
+
+RUN curl -fsSL "https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip" -o terraform.zip && \
+    unzip terraform.zip && \
+    mv terraform /usr/local/bin/terraform && \
+    chmod +x /usr/local/bin/terraform && \
+    rm terraform.zip && \
+    terraform -version
+
+# ------------------------------------------------------------------------------
+# Install yq (YAML processor)
+# ------------------------------------------------------------------------------
+RUN curl -sSL -o /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && \
+    chmod +x /usr/local/bin/yq && \
+    yq --version
+
+# ------------------------------------------------------------------------------
+# Cleanup apt cache to minimize image size
+# ------------------------------------------------------------------------------
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# ------------------------------------------------------------------------------
+# Copy custom entrypoint
+# ------------------------------------------------------------------------------
 COPY github-actions-runner/entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh
 
+# Switch back to non-root user
 USER runner
 
 ENTRYPOINT ["./entrypoint.sh"]
