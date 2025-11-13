@@ -3,8 +3,11 @@ FROM ghcr.io/actions/actions-runner:2.304.0
 
 USER root
 
-# install curl and jq
-RUN apt-get update && apt-get install -y curl jq && \
+# Install dependencies (curl, jq, yq)
+RUN apt-get update && \
+    apt-get install -y curl jq && \
+    curl -sSL -o /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && \
+    chmod +x /usr/local/bin/yq && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
